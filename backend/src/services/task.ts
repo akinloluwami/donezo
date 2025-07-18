@@ -128,3 +128,31 @@ export async function deleteTask({
   if (task.count === 0) return { status: 404, error: "Task not found" };
   return { status: 204, data: null };
 }
+
+export async function getTaskInsights({ userId }: { userId: string }) {
+  const total = await prisma.task.count({ where: { userId } });
+  const byStatus = await prisma.task.groupBy({
+    by: ["status"],
+    where: { userId },
+    _count: { status: true },
+  });
+  const byCollection = await prisma.task.groupBy({
+    by: ["collectionId"],
+    where: { userId },
+    _count: { collectionId: true },
+  });
+  return {
+    status: 200,
+    data: {
+      total,
+      byStatus: byStatus.map((s) => ({
+        status: s.status,
+        count: s._count.status,
+      })),
+      byCollection: byCollection.map((c) => ({
+        collectionId: c.collectionId,
+        count: c._count.collectionId,
+      })),
+    },
+  };
+}

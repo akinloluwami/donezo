@@ -5,6 +5,7 @@ import {
   getTaskById,
   updateTask,
   deleteTask,
+  getTaskInsights,
 } from "../services/task";
 import type { Status } from "@prisma/client";
 
@@ -43,6 +44,12 @@ router.get("/", async (req: Request, res: Response) => {
     status: status as Status | undefined,
     labelIds: parsedLabelIds,
   });
+  return res.status(result.status).json(result.data);
+});
+
+router.get("/insights", async (req: Request, res: Response) => {
+  const userId = (req as any).userId;
+  const result = await getTaskInsights({ userId });
   return res.status(result.status).json(result.data);
 });
 
