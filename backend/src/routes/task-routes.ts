@@ -6,6 +6,7 @@ import {
   updateTask,
   deleteTask,
 } from "../services/task";
+import type { Status } from "@prisma/client";
 
 const router = Router();
 
@@ -27,10 +28,20 @@ router.post("/", async (req: Request, res: Response) => {
 
 router.get("/", async (req: Request, res: Response) => {
   const userId = (req as any).userId;
-  const { collectionId } = req.query;
+  const { collectionId, status, labelIds } = req.query;
+  let parsedLabelIds: string[] | undefined = undefined;
+  if (labelIds) {
+    if (Array.isArray(labelIds)) {
+      parsedLabelIds = labelIds as string[];
+    } else if (typeof labelIds === "string") {
+      parsedLabelIds = labelIds.split(",");
+    }
+  }
   const result = await getTasks({
     userId,
     collectionId: collectionId as string | undefined,
+    status: status as Status | undefined,
+    labelIds: parsedLabelIds,
   });
   return res.status(result.status).json(result.data);
 });

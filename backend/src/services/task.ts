@@ -41,16 +41,36 @@ export async function createTask({
 export async function getTasks({
   userId,
   collectionId,
+  status,
+  labelIds,
 }: {
   userId: string;
   collectionId?: string;
+  status?: Status;
+  labelIds?: string[];
 }) {
   const where: any = { userId };
   if (collectionId) where.collectionId = collectionId;
-  const tasks = await prisma.task.findMany({
-    where,
-    include: { extras: true },
-  });
+  if (status) where.status = status;
+  let tasks;
+  if (labelIds && labelIds.length > 0) {
+    tasks = await prisma.task.findMany({
+      where: {
+        ...where,
+        labels: {
+          some: {
+            id: { in: labelIds },
+          },
+        },
+      },
+      include: { extras: true, labels: true },
+    });
+  } else {
+    tasks = await prisma.task.findMany({
+      where,
+      include: { extras: true, labels: true },
+    });
+  }
   return { status: 200, data: tasks };
 }
 
@@ -63,7 +83,7 @@ export async function getTaskById({
 }) {
   const task = await prisma.task.findFirst({
     where: { id, userId },
-    include: { extras: true },
+    include: { extras: true, labels: true },
   });
   if (!task) return { status: 404, error: "Task not found" };
   return { status: 200, data: task };
