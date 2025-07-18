@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MoveRight } from "lucide-react";
+import { Button } from "../components/button";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -12,7 +13,7 @@ function RouteComponent() {
       <div className="relative w-full max-w-4xl h-20 rounded-full border border-gray-400/20 mx-auto z-10 mt-5 bg-white/10 backdrop-blur-lg p-5 flex items-center justify-between">
         <h1 className="font-medium text-lg">Donezo</h1>
         <div className="flex items-center gap-5">
-          <Link to="/" className="text-gray-500">
+          <Link to="/login" className="text-gray-500">
             Login
           </Link>
           <Link
@@ -37,10 +38,12 @@ function RouteComponent() {
           complete tasks—your way.
         </p>
 
-        <button className="bg-accent rounded-full text-white px-5 h-14 hover:bg-accent/90 transition-colors w-fit mt-10 flex items-center gap-x-2">
-          Get Started
-          <MoveRight />
-        </button>
+        <Link to="/" className="w-fit mt-10">
+          <Button className="w-full">
+            Get Started
+            <MoveRight />
+          </Button>
+        </Link>
       </div>
     </div>
   );
