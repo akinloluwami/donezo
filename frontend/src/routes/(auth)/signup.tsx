@@ -37,7 +37,7 @@ function SignupPage() {
               placeholder="••••••••"
             />
           </div>
-          <Button type="submit" className="w-full mt-2">
+          <Button type="submit" className="w-full mt-2" loading>
             Sign Up
           </Button>
         </form>
