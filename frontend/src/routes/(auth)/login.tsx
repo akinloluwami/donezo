@@ -16,27 +16,19 @@ function LoginPage() {
         </h2>
         <form className="flex flex-col gap-5">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Email
-            </label>
+            <p className="text-sm font-medium text-gray-700 mb-2">Email</p>
             <Input name="email" type="email" placeholder="you@example.com" />
           </div>
+
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Password
-            </label>
+            <p className="text-sm font-medium text-gray-700 mb-2">Password</p>
             <Input name="password" type="password" placeholder="••••••••" />
           </div>
           <Button type="submit" className="w-full mt-2">
             Sign In
           </Button>
         </form>
+
         <div className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{" "}
           <Link to="/" className="text-accent font-medium hover:underline">
