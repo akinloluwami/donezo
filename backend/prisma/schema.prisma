@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String      @id @default(uuid())
+  email     String      @unique
+  password  String
+  firstName String
+  lastName  String
+  tasks     Task[]
+  collections Collection[]
+  labels    Label[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String     @db.VarChar(255)
+  description String?
+  status      Status     @default(PENDING)
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  extras      Extras?
+  collection  Collection @relation(fields: [collectionId], references: [id])
+  collectionId String
+  labels      Label[]    @relation("TaskLabels")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+model Extras {
+  id        String   @id @default(uuid())
+  tags      String[]
+  dueDate   DateTime?
+  priority  Int?
+  task      Task     @relation(fields: [taskId], references: [id])
+  taskId    String   @unique
+}
+
+model Label {
+  id        String   @id @default(uuid())
+  name      String
+  color     String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  tasks     Task[]   @relation("TaskLabels")
+}
+
+model Collection {
+  id        String   @id @default(uuid())
+  name      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  tasks     Task[]
+}
