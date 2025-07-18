@@ -3,39 +3,48 @@ import { Input } from "../../components/input";
 import { Button } from "../../components/button";
 import { Card } from "../../components/card";
 
-export const Route = createFileRoute("/(auth)/login")({
-  component: LoginPage,
+export const Route = createFileRoute("/(auth)/signup")({
+  component: SignupPage,
 });
 
-function LoginPage() {
+function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-accent/10 to-white/80">
       <Card className="w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Sign in to Donezo
+          Create your Donezo account
         </h2>
         <form className="flex flex-col gap-5">
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Name</p>
+            <Input name="name" type="text" placeholder="Your name" />
+          </div>
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">Email</p>
             <Input name="email" type="email" placeholder="you@example.com" />
           </div>
-
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">Password</p>
             <Input name="password" type="password" placeholder="••••••••" />
           </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Confirm Password
+            </p>
+            <Input
+              name="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+            />
+          </div>
           <Button type="submit" className="w-full mt-2">
-            Sign In
+            Sign Up
           </Button>
         </form>
-
         <div className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-accent font-medium hover:underline"
-          >
-            Sign up
+          Already have an account?{" "}
+          <Link to="/login" className="text-accent font-medium hover:underline">
+            Sign in
           </Link>
         </div>
       </Card>
