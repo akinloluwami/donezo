@@ -24,7 +24,7 @@ function mapPriority(priority?: string): any {
 function mapStatus(status?: string): any {
   if (!status) return undefined;
   const map: Record<string, string> = {
-    todo: "PENDING",
+    todo: "TODO",
     in_progress: "IN_PROGRESS",
     done: "DONE",
   };

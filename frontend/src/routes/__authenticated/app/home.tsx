@@ -3,6 +3,8 @@ import { useUserStore } from "../../../lib/user-store";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateTaskModal from "../../../components/modals/create-task";
+import { useTasksStore } from "../../../lib/tasks-store";
+import TaskItem from "../../../components/task-item";
 
 export const Route = createFileRoute("/__authenticated/app/home")({
   component: RouteComponent,
@@ -42,6 +44,8 @@ function RouteComponent() {
     setModalOpen(false);
   }
 
+  const tasks = useTasksStore((s) => s.tasks);
+
   return (
     <div>
       <h2 className="text-2xl mb-4 text-gray-800">
@@ -52,12 +56,12 @@ function RouteComponent() {
       </h2>
 
       <div
-        className="h-12 rounded-2xl bg-gray-200/50 w-full flex items-center justify-between px-5 hover:bg-gray-200/70 transition-colors cursor-pointer"
+        className="h-12 rounded-2xl bg-white/80 w-full flex items-center justify-between px-5 hover:bg-gray-200/70 transition-colors cursor-pointer mt-10"
         onClick={openModal}
       >
         <p className="text-sm text-gray-500">Create a task</p>
         <button
-          className="bg-gray-300 size-5 flex items-center justify-center rounded-md"
+          className="bg-gray-300/70 size-5 flex items-center justify-center rounded-md"
           type="button"
           tabIndex={-1}
           onClick={(e) => {
@@ -70,6 +74,12 @@ function RouteComponent() {
       </div>
 
       <CreateTaskModal open={modalOpen} onClose={closeModal} />
+
+      <div className="mt-5 space-y-2.5">
+        {tasks.map((task) => (
+          <TaskItem key={task.id} task={task} />
+        ))}
+      </div>
     </div>
   );
 }

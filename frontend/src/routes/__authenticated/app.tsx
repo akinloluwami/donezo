@@ -16,7 +16,7 @@ function RouteComponent() {
     loadTasks();
   }, [loadLabels, loadTasks]);
   return (
-    <div className="flex h-screen bg-gray-50 relative">
+    <div className="flex h-screen bg-[#eceef0] relative">
       <div className="bg-[#7eb3f4]/50 h-[900px] w-full opacity-50 rounded-full absolute -top-[800px] left-1/2 -translate-x-1/2 blur-3xl z-0 pointer-events-none"></div>
 
       <Sidebar />

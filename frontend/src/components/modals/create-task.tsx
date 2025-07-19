@@ -64,7 +64,7 @@ export default function CreateTaskModal({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Build payload for backend
+
     const payload = {
       title,
       description,
@@ -105,7 +105,7 @@ export default function CreateTaskModal({
   return (
     <Modal open={open} onClose={handleCancel}>
       <h3 className="text-sm font-medium">New Task</h3>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="mt-3">
         <input
           type="text"
           placeholder="Task title"
