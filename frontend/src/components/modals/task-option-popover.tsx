@@ -14,6 +14,7 @@ export default function TaskOptionPopover({
   value,
   options,
   onChange,
+  place = "left",
 }: {
   label: string;
   icon?: IconType;
@@ -21,10 +22,13 @@ export default function TaskOptionPopover({
   value?: string;
   options: { label: string; value: string; icon: IconType; color?: string }[];
   onChange: (value: any) => void;
+  place?: "right" | "left";
 }) {
   const [open, setOpen] = useState(false);
+  const [alignLeft, setAlignLeft] = useState(false);
   const selected = options.find((opt) => opt.value === value);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -40,9 +44,20 @@ export default function TaskOptionPopover({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
+  // Flip popover if it would overflow right edge
+  useEffect(() => {
+    if (open && buttonRef.current && popoverRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const popoverWidth = 200; // min-w-[180px] + padding, estimate
+      const spaceRight = window.innerWidth - buttonRect.right;
+      setAlignLeft(spaceRight < popoverWidth);
+    }
+  }, [open]);
+
   return (
     <div className="relative" ref={popoverRef}>
       <button
+        ref={buttonRef}
         type="button"
         className={`flex items-center gap-x-1.5 text-black text-xs bg-gray-200 px-2 py-1 rounded-sm hover:bg-gray-300 transition-colors ${
           value ? "opacity-100" : "opacity-60 hover:opacity-100"
@@ -68,7 +83,7 @@ export default function TaskOptionPopover({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute left-0 z-10 mt-1 min-w-[180px] bg-white border border-gray-200 rounded shadow-lg"
+            className={`absolute z-10 mt-1 min-w-[180px] bg-white border border-gray-200 rounded shadow-lg ${place === "left" ? "left-0" : "right-0"}`}
           >
             {options.map((opt) => (
               <button

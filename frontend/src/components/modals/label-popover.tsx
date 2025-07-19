@@ -17,9 +17,11 @@ function getLabelColor(opt: any) {
 export default function LabelPopover({
   selected,
   setSelected,
+  place = "right",
 }: {
   selected: string[];
   setSelected: (labels: string[]) => void;
+  place?: "right" | "left";
 }) {
   const [open, setOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -110,7 +112,7 @@ export default function LabelPopover({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute left-0 z-10 mt-1 min-w-[180px] bg-white border border-gray-200 rounded shadow-lg"
+            className={`absolute z-10 mt-1 min-w-[180px] bg-white border border-gray-200 rounded shadow-lg ${place === "left" ? "left-0" : "right-0"}`}
           >
             <div className="px-3 pt-2 pb-1 text-xs font-semibold text-gray-500 flex items-center justify-between">
               <span>Labels</span>

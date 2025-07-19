@@ -7,10 +7,12 @@ export default function CollectionPopover({
   collections,
   selectedCollectionId,
   setSelectedCollectionId,
+  place = "right",
 }: {
   collections: Collection[];
   selectedCollectionId: string | null;
   setSelectedCollectionId: (id: string | null) => void;
+  place?: "right" | "left";
 }) {
   const [open, setOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -51,7 +53,7 @@ export default function CollectionPopover({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute left-0 z-10 mt-1 min-w-[180px] bg-white border border-gray-200 rounded shadow-lg"
+            className={`absolute z-10 mt-1 min-w-[180px] bg-white border border-gray-200 rounded shadow-lg ${place === "left" ? "left-0" : "right-0"}`}
           >
             {collections.map((col) => (
               <button

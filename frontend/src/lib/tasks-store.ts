@@ -15,15 +15,18 @@ export type Task = {
 
 type TasksStore = {
   tasks: Task[];
+  selectedTaskId: string | null;
   setTasks: (tasks: Task[]) => void;
   addTask: (task: Task) => void;
   updateTask: (id: string, data: Partial<Task>) => void;
   removeTask: (id: string) => void;
   loadTasks: (params?: any) => Promise<void>;
+  setSelectedTaskId: (id: string | null) => void;
 };
 
 export const useTasksStore = create<TasksStore>((set) => ({
   tasks: [],
+  selectedTaskId: null,
   setTasks: (tasks) => set({ tasks }),
   addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
   updateTask: (id, data) =>
@@ -36,4 +39,5 @@ export const useTasksStore = create<TasksStore>((set) => ({
     const tasks = await appClient.tasks.getTasks(params);
     set({ tasks });
   },
+  setSelectedTaskId: (id) => set({ selectedTaskId: id }),
 }));
