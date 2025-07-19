@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Calendar as CalendarIcon, X } from "lucide-react";
-import { format, addDays, endOfWeek } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format, addDays } from "date-fns";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { Button } from "../button";
 
 export default function DueDatePopover({
   dueDate,
@@ -15,8 +14,6 @@ export default function DueDatePopover({
   buttonClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
-  const [calendarValue, setCalendarValue] = useState<Date | null>(dueDate);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,37 +30,38 @@ export default function DueDatePopover({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  function handleDueDateOption(option: string) {
-    let date: Date | null = null;
-    if (option === "tomorrow") {
+  // Quick select handlers
+  const handleQuickSelect = (option: "today" | "tomorrow" | "in2days") => {
+    let date: Date;
+    if (option === "today") {
+      date = new Date();
+    } else if (option === "tomorrow") {
       date = addDays(new Date(), 1);
-      setDueDate(date);
-      setOpen(false);
-      return;
-    } else if (option === "week") {
-      date = addDays(new Date(), 7);
-      setDueDate(date);
-      setOpen(false);
-      return;
-    } else if (option === "endofweek") {
-      date = endOfWeek(new Date(), { weekStartsOn: 1 });
-      setDueDate(date);
-      setOpen(false);
-      return;
-    } else if (option === "custom") {
-      setCalendarValue(dueDate || new Date());
-      setCalendarModalOpen(true);
-      setOpen(false);
-      return;
+    } else {
+      date = addDays(new Date(), 2);
     }
     setDueDate(date);
     setOpen(false);
-  }
+  };
 
-  function handleSaveCalendarDate() {
-    if (calendarValue) setDueDate(calendarValue);
-    setCalendarModalOpen(false);
-  }
+  // Calendar select handler
+  const handleCalendarChange = (date: Date) => {
+    setDueDate(date);
+    setOpen(false);
+  };
+
+  // Calendar tile class for selected date
+  const tileClassName = ({ date }: { date: Date }) => {
+    if (
+      dueDate &&
+      date.getFullYear() === dueDate.getFullYear() &&
+      date.getMonth() === dueDate.getMonth() &&
+      date.getDate() === dueDate.getDate()
+    ) {
+      return "!bg-blue-600 text-white rounded-xl !w-7 !h-10 flex items-center justify-center";
+    }
+    return "";
+  };
 
   return (
     <div className="relative" ref={popoverRef}>
@@ -78,103 +76,57 @@ export default function DueDatePopover({
         <CalendarIcon size={14} />
         {dueDate && (
           <span className="ml-1 text-xs text-gray-700">
-            {format(dueDate, "MMM d")}
+            {format(dueDate, "d. MMM")}
           </span>
         )}
       </button>
       {open && (
-        <div className="absolute left-0 z-10 mt-1 min-w-[240px] bg-white border border-gray-200 rounded shadow-lg">
-          <button
-            type="button"
-            className="flex w-full px-3 py-2 text-sm hover:bg-gray-100 items-center"
-            onClick={() => handleDueDateOption("custom")}
-          >
-            Custom...
-          </button>
-          <button
-            type="button"
-            className="flex w-full px-3 py-2 text-sm hover:bg-gray-100 items-center"
-            onClick={() => handleDueDateOption("tomorrow")}
-          >
-            <CalendarIcon size={14} className="mr-2 text-gray-400" />
-            Tomorrow
-            <span className="ml-auto text-xs text-gray-400">
-              {format(addDays(new Date(), 1), "MMM d")}
-            </span>
-          </button>
-          <button
-            type="button"
-            className="flex w-full px-3 py-2 text-sm hover:bg-gray-100 items-center"
-            onClick={() => handleDueDateOption("week")}
-          >
-            <CalendarIcon size={14} className="mr-2 text-gray-400" />
-            In one week
-            <span className="ml-auto text-xs text-gray-400">
-              {format(addDays(new Date(), 7), "MMM d")}
-            </span>
-          </button>
-          <button
-            type="button"
-            className="flex w-full px-3 py-2 text-sm hover:bg-gray-100 items-center"
-            onClick={() => handleDueDateOption("endofweek")}
-          >
-            <CalendarIcon size={14} className="mr-2 text-gray-400" />
-            End of this week
-            <span className="ml-auto text-xs text-gray-400">
-              {format(endOfWeek(new Date(), { weekStartsOn: 1 }), "MMM d")}
-            </span>
-          </button>
+        <div className="absolute left-0 z-20 mt-2 min-w-[320px] bg-white border border-gray-200 rounded-xl shadow-xl p-4 flex flex-col items-center">
+          <div className="flex gap-2 mb-4 w-full">
+            <button
+              className="flex-1 py-1 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-colors"
+              onClick={() => handleQuickSelect("today")}
+              type="button"
+            >
+              Today
+            </button>
+            <button
+              className="flex-1 py-1 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-colors"
+              onClick={() => handleQuickSelect("tomorrow")}
+              type="button"
+            >
+              Tomorrow
+            </button>
+            <button
+              className="flex-1 py-1 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-colors"
+              onClick={() => handleQuickSelect("in2days")}
+              type="button"
+            >
+              In 2 days
+            </button>
+          </div>
+          <Calendar
+            onChange={(date: any) => handleCalendarChange(date as Date)}
+            value={dueDate || new Date()}
+            calendarType="iso8601"
+            minDetail="month"
+            className="REACT-CALENDAR p-1 rounded bg-white text-black border-none text-xs w-[180px]"
+            tileClassName={tileClassName}
+            prev2Label={null}
+            next2Label={null}
+          />
           {dueDate && (
             <button
+              className="mt-4 text-xs text-red-500 hover:underline"
+              onClick={() => {
+                setDueDate(null);
+                setOpen(false);
+              }}
               type="button"
-              className="flex w-full px-3 py-2 text-xs text-red-500 hover:bg-gray-100"
-              onClick={() => setDueDate(null)}
             >
               Clear due date
             </button>
           )}
-        </div>
-      )}
-      {/* Calendar Modal */}
-      {calendarModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-40">
-          <div className="bg-white text-black rounded-lg shadow-lg p-6 min-w-[400px] relative">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
-              onClick={() => setCalendarModalOpen(false)}
-              aria-label="Close"
-            >
-              <X size={20} />
-            </button>
-            <h3 className="text-lg font-semibold mb-4">Add due date</h3>
-            <div className="mb-4">
-              <label className="block text-xs mb-1 text-gray-700 font-medium">
-                Due Date{" "}
-              </label>
-              <input
-                type="text"
-                className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm text-gray-800 mb-4"
-                placeholder="DD/MM/YYYY"
-                value={calendarValue ? format(calendarValue, "dd/MM/yyyy") : ""}
-                readOnly
-              />
-              <div className="flex justify-center">
-                <Calendar
-                  onChange={(date: any) => setCalendarValue(date as Date)}
-                  value={calendarValue}
-                  calendarType="iso8601"
-                  minDetail="month"
-                  className="REACT-CALENDAR p-2 rounded bg-white text-black"
-                  tileClassName={() => "!bg-white text-black"}
-                  prev2Label={null}
-                  next2Label={null}
-                />
-              </div>
-            </div>
-            <Button onClick={handleSaveCalendarDate} className="w-full mt-2">
-              Save due date
-            </Button>
-          </div>
         </div>
       )}
     </div>
