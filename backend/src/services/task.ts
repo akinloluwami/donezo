@@ -2,10 +2,34 @@ import prisma from "../db/prisma-client";
 import type { Status } from "@prisma/client";
 
 type ExtrasInput = {
-  tags?: string[];
+  labelIds?: string[];
   dueDate?: Date;
   priority?: number;
 };
+
+// Helper to map string priority to enum
+function mapPriority(priority?: string): any {
+  if (!priority) return undefined;
+  const map: Record<string, string> = {
+    low: "LOW",
+    medium: "MEDIUM",
+    high: "HIGH",
+    urgent: "URGENT",
+  };
+  const val = priority.toLowerCase();
+  return map[val] || undefined;
+}
+
+// Helper to map string status to enum
+function mapStatus(status?: string): any {
+  if (!status) return undefined;
+  const map: Record<string, string> = {
+    todo: "PENDING",
+    in_progress: "IN_PROGRESS",
+    done: "DONE",
+  };
+  return map[status] || undefined;
+}
 
 export async function createTask({
   userId,
@@ -16,24 +40,37 @@ export async function createTask({
   extras,
 }: {
   userId: string;
-  collectionId: string;
+  collectionId?: string;
   title: string;
   description?: string;
   status?: string;
   extras?: ExtrasInput;
 }) {
   if (!title) return { status: 400, error: "Title is required" };
-  if (!collectionId) return { status: 400, error: "Collection is required" };
+  const data: any = {
+    title,
+    description,
+    status: mapStatus(status),
+    userId,
+    extras: extras
+      ? {
+          create: {
+            dueDate: extras.dueDate,
+            priority: mapPriority(extras.priority as any),
+            labels:
+              extras.labelIds && extras.labelIds.length > 0
+                ? {
+                    connect: extras.labelIds.map((id) => ({ id })),
+                  }
+                : undefined,
+          },
+        }
+      : undefined,
+  };
+  if (collectionId) data.collectionId = collectionId;
   const task = await prisma.task.create({
-    data: {
-      title,
-      description,
-      status: status as Status | undefined,
-      userId,
-      collectionId,
-      extras: extras ? { create: extras } : undefined,
-    },
-    include: { extras: true },
+    data,
+    include: { extras: { include: { labels: true } } },
   });
   return { status: 201, data: task };
 }
@@ -95,6 +132,7 @@ export async function updateTask({
   title,
   description,
   status,
+  collectionId,
   extras,
 }: {
   userId: string;
@@ -102,19 +140,45 @@ export async function updateTask({
   title?: string;
   description?: string;
   status?: string;
+  collectionId?: string;
   extras?: ExtrasInput;
 }) {
+  const data: any = {
+    title,
+    description,
+    status: mapStatus(status),
+  };
+  if (collectionId !== undefined) data.collectionId = collectionId;
   const task = await prisma.task.updateMany({
     where: { id, userId },
-    data: {
-      title,
-      description,
-      status: status as Status | undefined,
-    },
+    data,
   });
   if (task.count === 0) return { status: 404, error: "Task not found" };
+
   // Optionally update extras here if needed
-  return { status: 200, data: { id, title, description, status, extras } };
+  if (extras) {
+    const existingExtras = await prisma.extras.findUnique({
+      where: { taskId: id },
+    });
+    if (existingExtras) {
+      await prisma.extras.update({
+        where: { taskId: id },
+        data: {
+          dueDate: extras.dueDate,
+          priority: mapPriority(extras.priority as any),
+          labels: extras.labelIds
+            ? {
+                set: extras.labelIds.map((labelId) => ({ id: labelId })),
+              }
+            : undefined,
+        },
+      });
+    }
+  }
+  return {
+    status: 200,
+    data: { id, title, description, status, collectionId, extras },
+  };
 }
 
 export async function deleteTask({

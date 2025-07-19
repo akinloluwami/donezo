@@ -2,6 +2,13 @@ import prisma from "../db/prisma-client";
 import bcrypt from "bcrypt";
 import { issueJWT } from "../utils/jwt";
 
+const DEFAULT_LABELS = [
+  { name: "Work", color: "#2563eb" },
+  { name: "Personal", color: "#7c3aed" },
+  { name: "Bug", color: "#dc2626" },
+  { name: "Feature", color: "#16a34a" },
+];
+
 export async function signup({
   email,
   password,
@@ -14,17 +21,27 @@ export async function signup({
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { status: 409, error: "Email already in use" };
   const hashed = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: { email, password: hashed, name },
+  const result = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: { email, password: hashed, name },
+    });
+    await Promise.all(
+      DEFAULT_LABELS.map((label) =>
+        tx.label.create({
+          data: { name: label.name, color: label.color, userId: user.id },
+        })
+      )
+    );
+    return user;
   });
-  const token = issueJWT(user.id);
+  const token = issueJWT(result.id);
   return {
     status: 201,
     data: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      hasCompletedOnboarding: user.hasCompletedOnboarding,
+      id: result.id,
+      email: result.email,
+      name: result.name,
+      hasCompletedOnboarding: result.hasCompletedOnboarding,
     },
     token,
   };
