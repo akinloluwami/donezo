@@ -1,32 +1,24 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Modal } from "../modal";
-import { Box, CircleDashed, Ellipsis } from "lucide-react";
+import { CircleDashed, Ellipsis } from "lucide-react";
+import TaskOptionPopover from "./task-option-popover";
+import LabelPopover from "./label-popover";
+import CollectionPopover from "./collection-popover";
+import DueDatePopover from "./due-date-popover";
+import {
+  PROGRESS_OPTIONS,
+  PRIORITY_OPTIONS,
+  COLLECTIONS,
+} from "./constants/tasks";
+import type { ProgressOption, PriorityOption } from "./types/tasks";
+import { useMutation } from "@tanstack/react-query";
+import { appClient } from "../../lib/app-client";
+import { useTasksStore } from "../../lib/tasks-store";
 
 type CreateTaskModalProps = {
   open: boolean;
   onClose: () => void;
 };
-
-function TaskOptionButton({
-  label,
-  icon: Icon,
-  value,
-}: {
-  label: string;
-  icon?: React.ComponentType<{ size?: number | string }>;
-  value?: string;
-}) {
-  return (
-    <button
-      className={`flex items-center gap-x-1.5 text-black text-xs bg-gray-200 px-2 py-1 rounded-sm hover:bg-gray-300 transition-colors ${
-        value ? "opacity-100" : "opacity-60 hover:opacity-100"
-      }`}
-    >
-      {Icon && <Icon size={14} />}
-      {value || label}
-    </button>
-  );
-}
 
 export default function CreateTaskModal({
   open,
@@ -34,20 +26,57 @@ export default function CreateTaskModal({
 }: CreateTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [progress, setProgress] = useState<ProgressOption["value"]>("todo");
+  const [priority, setPriority] = useState<PriorityOption["value"]>("");
+  const [labels, setLabels] = useState<string[]>([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<
+    string | null
+  >(null);
+  const [dueDate, setDueDate] = useState<Date | null>(null);
+  const [dueDatePopoverOpen, setDueDatePopoverOpen] = useState(false);
+  const dueDatePopoverRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    // TODO: Add actual create task logic here (API call, etc)
-    setTimeout(() => {
-      setLoading(false);
+  const addTask = useTasksStore((s) => s.addTask);
+  const createTaskMutation = useMutation({
+    mutationFn: appClient.tasks.createTask,
+    onSuccess: (task) => {
+      addTask(task);
       setTitle("");
       setDescription("");
       onClose();
-    }, 700);
+    },
+  });
+
+  useEffect(() => {
+    if (!dueDatePopoverOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (
+        dueDatePopoverRef.current &&
+        !dueDatePopoverRef.current.contains(e.target as Node)
+      ) {
+        setDueDatePopoverOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [dueDatePopoverOpen]);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    // Build payload for backend
+    const payload = {
+      title,
+      description,
+      status: progress ? progress.toUpperCase() : undefined,
+      collectionId: selectedCollectionId || undefined,
+      extras: {
+        labelIds: labels,
+        priority: priority ? priority.toUpperCase() : undefined,
+        dueDate: dueDate ? dueDate.toISOString() : undefined,
+      },
+    };
+    createTaskMutation.mutate(payload);
   }
 
   function handleCancel() {
@@ -76,26 +105,59 @@ export default function CreateTaskModal({
   return (
     <Modal open={open} onClose={handleCancel}>
       <h3 className="text-sm font-medium">New Task</h3>
-      <div className="mt-5">
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Task title"
           className="text-lg font-medium w-full focus:outline-none focus:ring-0"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <textarea
           ref={textareaRef}
-          className="mt-2 w-full resize-none focus:outline-none max-h-60"
+          className="mt-2 w-full resize-none focus:outline-none max-h-40"
           placeholder="Add description..."
           value={description}
           onChange={handleDescriptionChange}
           rows={1}
         />
         <div className="mt-3 flex items-center gap-x-2">
-          <TaskOptionButton label="Progress" value="Todo" icon={CircleDashed} />
-          <TaskOptionButton label="Priority" value="" icon={Ellipsis} />
-          <TaskOptionButton label="Collection" value="" icon={Box} />
+          <TaskOptionPopover
+            label="Progress"
+            icon={CircleDashed}
+            iconColor="#0ea5e9"
+            value={progress}
+            options={PROGRESS_OPTIONS}
+            onChange={(opt) => setProgress(opt.value)}
+          />
+          <TaskOptionPopover
+            label="Priority"
+            icon={Ellipsis}
+            iconColor="#f59e42"
+            value={priority}
+            options={PRIORITY_OPTIONS}
+            onChange={(opt) => setPriority(opt.value)}
+          />
+          <CollectionPopover
+            collections={COLLECTIONS}
+            selectedCollectionId={selectedCollectionId}
+            setSelectedCollectionId={setSelectedCollectionId}
+          />
+          <LabelPopover selected={labels} setSelected={setLabels} />
+          <DueDatePopover dueDate={dueDate} setDueDate={setDueDate} />
         </div>
-      </div>
+        <div className="border-t border-accent/20 w-full mt-2">
+          <button
+            className="bg-accent text-white rounded-md p-2 mt-2 text-sm hover:bg-accent-hover transition-colors flex items-center justify-center gap-x-2 disabled:opacity-50"
+            type="submit"
+            disabled={createTaskMutation.status === "pending"}
+          >
+            {createTaskMutation.status === "pending"
+              ? "Creating..."
+              : "Create task"}
+          </button>
+        </div>
+      </form>
     </Modal>
   );
 }
