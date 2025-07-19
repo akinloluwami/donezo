@@ -13,7 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as _authenticatedAppRouteImport } from './routes/__authenticated/app'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as _authenticatedAppTasksRouteImport } from './routes/__authenticated/app/tasks'
+import { Route as _authenticatedAppSettingsRouteImport } from './routes/__authenticated/app/settings'
 import { Route as _authenticatedAppHomeRouteImport } from './routes/__authenticated/app/home'
+import { Route as _authenticatedAppCollectionsRouteImport } from './routes/__authenticated/app/collections'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,25 +38,48 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const _authenticatedAppTasksRoute = _authenticatedAppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => _authenticatedAppRoute,
+} as any)
+const _authenticatedAppSettingsRoute =
+  _authenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => _authenticatedAppRoute,
+  } as any)
 const _authenticatedAppHomeRoute = _authenticatedAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
   getParentRoute: () => _authenticatedAppRoute,
 } as any)
+const _authenticatedAppCollectionsRoute =
+  _authenticatedAppCollectionsRouteImport.update({
+    id: '/collections',
+    path: '/collections',
+    getParentRoute: () => _authenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/app': typeof _authenticatedAppRouteWithChildren
+  '/app/collections': typeof _authenticatedAppCollectionsRoute
   '/app/home': typeof _authenticatedAppHomeRoute
+  '/app/settings': typeof _authenticatedAppSettingsRoute
+  '/app/tasks': typeof _authenticatedAppTasksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/app': typeof _authenticatedAppRouteWithChildren
+  '/app/collections': typeof _authenticatedAppCollectionsRoute
   '/app/home': typeof _authenticatedAppHomeRoute
+  '/app/settings': typeof _authenticatedAppSettingsRoute
+  '/app/tasks': typeof _authenticatedAppTasksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,20 +87,42 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
   '/__authenticated/app': typeof _authenticatedAppRouteWithChildren
+  '/__authenticated/app/collections': typeof _authenticatedAppCollectionsRoute
   '/__authenticated/app/home': typeof _authenticatedAppHomeRoute
+  '/__authenticated/app/settings': typeof _authenticatedAppSettingsRoute
+  '/__authenticated/app/tasks': typeof _authenticatedAppTasksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/app' | '/app/home'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/app'
+    | '/app/collections'
+    | '/app/home'
+    | '/app/settings'
+    | '/app/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/app' | '/app/home'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/app'
+    | '/app/collections'
+    | '/app/home'
+    | '/app/settings'
+    | '/app/tasks'
   id:
     | '__root__'
     | '/'
     | '/(auth)/login'
     | '/(auth)/signup'
     | '/__authenticated/app'
+    | '/__authenticated/app/collections'
     | '/__authenticated/app/home'
+    | '/__authenticated/app/settings'
+    | '/__authenticated/app/tasks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -114,6 +162,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/__authenticated/app/tasks': {
+      id: '/__authenticated/app/tasks'
+      path: '/tasks'
+      fullPath: '/app/tasks'
+      preLoaderRoute: typeof _authenticatedAppTasksRouteImport
+      parentRoute: typeof _authenticatedAppRoute
+    }
+    '/__authenticated/app/settings': {
+      id: '/__authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof _authenticatedAppSettingsRouteImport
+      parentRoute: typeof _authenticatedAppRoute
+    }
     '/__authenticated/app/home': {
       id: '/__authenticated/app/home'
       path: '/home'
@@ -121,15 +183,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof _authenticatedAppHomeRouteImport
       parentRoute: typeof _authenticatedAppRoute
     }
+    '/__authenticated/app/collections': {
+      id: '/__authenticated/app/collections'
+      path: '/collections'
+      fullPath: '/app/collections'
+      preLoaderRoute: typeof _authenticatedAppCollectionsRouteImport
+      parentRoute: typeof _authenticatedAppRoute
+    }
   }
 }
 
 interface _authenticatedAppRouteChildren {
+  _authenticatedAppCollectionsRoute: typeof _authenticatedAppCollectionsRoute
   _authenticatedAppHomeRoute: typeof _authenticatedAppHomeRoute
+  _authenticatedAppSettingsRoute: typeof _authenticatedAppSettingsRoute
+  _authenticatedAppTasksRoute: typeof _authenticatedAppTasksRoute
 }
 
 const _authenticatedAppRouteChildren: _authenticatedAppRouteChildren = {
+  _authenticatedAppCollectionsRoute: _authenticatedAppCollectionsRoute,
   _authenticatedAppHomeRoute: _authenticatedAppHomeRoute,
+  _authenticatedAppSettingsRoute: _authenticatedAppSettingsRoute,
+  _authenticatedAppTasksRoute: _authenticatedAppTasksRoute,
 }
 
 const _authenticatedAppRouteWithChildren =
