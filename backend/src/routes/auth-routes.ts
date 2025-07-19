@@ -11,6 +11,9 @@ router.post("/signup", async (req: Request, res: Response) => {
   const result = await signup(req.body);
   if (result.error)
     return res.status(result.status).json({ error: result.error });
+  if (!result.data || !result.token)
+    return res.status(500).json({ error: "Signup failed" });
+  setAuthCookie(res, result.token);
   return res.status(result.status).json(result.data);
 });
 
