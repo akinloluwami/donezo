@@ -3,12 +3,11 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function validateSignup(body: any): string | null {
-  const { email, password, firstName, lastName } = body;
+  const { email, password, name } = body;
   if (!email || !isValidEmail(email)) return "Valid email is required";
   if (!password || password.length < 6)
     return "Password must be at least 6 characters";
-  if (!firstName) return "First name is required";
-  if (!lastName) return "Last name is required";
+  if (!name) return "Name is required";
   return null;
 }
 
