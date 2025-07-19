@@ -7,7 +7,9 @@ import { Textarea } from "./textarea";
 import TaskOptionPopover from "./modals/task-option-popover";
 import CollectionPopover from "./modals/collection-popover";
 import LabelPopover from "./modals/label-popover";
+import DueDatePopover from "./modals/due-date-popover";
 import { PROGRESS_OPTIONS, COLLECTIONS } from "./modals/constants/tasks";
+import type { Label } from "../lib/labels-store";
 
 function extractLabelIds(labels: any[] | undefined): string[] {
   if (!labels) return [];
@@ -28,7 +30,28 @@ export default function TaskSideSheet({ task, onClose }: TaskSideSheetProps) {
   const [description, setDescription] = useState(task.description || "");
   const [collectionId, setCollectionId] = useState(task.collectionId || null);
   const [labels, setLabels] = useState<string[]>(extractLabelIds(task.labels));
+  const [dueDate, setDueDate] = useState(
+    task.extras?.dueDate ? new Date(task.extras.dueDate) : null
+  );
   const [saving, setSaving] = useState(false);
+
+  function normalizeStatus(
+    val: string | undefined
+  ): "TODO" | "IN_PROGRESS" | "DONE" {
+    if (!val) return "TODO";
+    const upper = val.toUpperCase();
+    if (["TODO", "IN_PROGRESS", "DONE"].includes(upper)) return upper as any;
+    return "TODO";
+  }
+
+  function normalizeLabels(labels: any[] | undefined): Label[] {
+    if (!labels) return [];
+    return labels.map((l) =>
+      typeof l === "string"
+        ? { id: l, name: l }
+        : { id: l.id, name: l.name, color: l.color, userId: l.userId }
+    );
+  }
 
   function handleBackdropClick(e: React.MouseEvent) {
     if (e.target === e.currentTarget) {
@@ -39,12 +62,22 @@ export default function TaskSideSheet({ task, onClose }: TaskSideSheetProps) {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const newStatus = normalizeStatus(status);
+    const newLabels = normalizeLabels(labels);
+    let newExtras = task.extras
+      ? {
+          ...task.extras,
+          dueDate: dueDate ? dueDate.toISOString() : undefined,
+          labels: newLabels,
+        }
+      : undefined;
     updateTask(task.id, {
       title,
-      status: status ? status.toUpperCase() : undefined,
+      status: newStatus,
       description,
       collectionId: collectionId || undefined,
-      labels,
+      labels: newLabels,
+      ...(newExtras ? { extras: newExtras } : {}),
     });
     setSaving(false);
     onClose();
@@ -117,6 +150,16 @@ export default function TaskSideSheet({ task, onClose }: TaskSideSheetProps) {
             <LabelPopover
               selected={labels}
               setSelected={setLabels}
+              place="right"
+            />
+          </div>
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <label className="block text-xs text-gray-500 font-medium">
+              Due date
+            </label>
+            <DueDatePopover
+              dueDate={dueDate}
+              setDueDate={setDueDate}
               place="right"
             />
           </div>

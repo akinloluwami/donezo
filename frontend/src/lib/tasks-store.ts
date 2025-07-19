@@ -1,14 +1,29 @@
 import { create } from "zustand";
 import { appClient } from "./app-client";
 
+export type Label = {
+  id: string;
+  name: string;
+  color?: string;
+  userId?: string;
+};
+
+export type Extras = {
+  id: string;
+  labels: Label[];
+  dueDate?: string; // ISO string
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  taskId: string;
+};
+
 export type Task = {
   id: string;
   title: string;
   description?: string;
-  status?: string;
+  status?: "TODO" | "IN_PROGRESS" | "DONE";
   collectionId?: string;
-  extras?: any;
-  labels?: any[];
+  extras?: Extras;
+  labels?: Label[];
   createdAt?: string;
   updatedAt?: string;
 };

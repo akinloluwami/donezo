@@ -8,10 +8,12 @@ export default function DueDatePopover({
   dueDate,
   setDueDate,
   buttonClassName = "",
+  place = "right",
 }: {
   dueDate: Date | null;
   setDueDate: (date: Date | null) => void;
   buttonClassName?: string;
+  place?: "right" | "left";
 }) {
   const [open, setOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -81,7 +83,9 @@ export default function DueDatePopover({
         )}
       </button>
       {open && (
-        <div className="absolute left-0 z-20 mt-2 min-w-[320px] bg-white border border-gray-200 rounded-xl shadow-xl p-4 flex flex-col items-center">
+        <div
+          className={`absolute z-20 mt-2 min-w-[320px] bg-white border border-gray-200 rounded-xl shadow-xl p-4 flex flex-col items-center ${place === "left" ? "left-0" : "right-0"}`}
+        >
           <div className="flex gap-2 mb-4 w-full">
             <button
               className="flex-1 py-1 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-colors"

@@ -25,7 +25,6 @@ export default function TaskOptionPopover({
   place?: "right" | "left";
 }) {
   const [open, setOpen] = useState(false);
-  const [alignLeft, setAlignLeft] = useState(false);
   const selected = options.find((opt) => opt.value === value);
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -42,16 +41,6 @@ export default function TaskOptionPopover({
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
-
-  // Flip popover if it would overflow right edge
-  useEffect(() => {
-    if (open && buttonRef.current && popoverRef.current) {
-      const buttonRect = buttonRef.current.getBoundingClientRect();
-      const popoverWidth = 200; // min-w-[180px] + padding, estimate
-      const spaceRight = window.innerWidth - buttonRect.right;
-      setAlignLeft(spaceRight < popoverWidth);
-    }
   }, [open]);
 
   return (
