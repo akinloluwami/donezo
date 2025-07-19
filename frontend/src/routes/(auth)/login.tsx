@@ -6,6 +6,7 @@ import { Button } from "../../components/button";
 import { Card } from "../../components/card";
 import { Error } from "../../components/error";
 import { appClient } from "../../lib/app-client";
+import { useUserStore } from "../../lib/user-store";
 
 export const Route = createFileRoute("/(auth)/login")({
   component: LoginPage,
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/(auth)/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const setUser = useUserStore((s) => s.setUser);
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,10 @@ function LoginPage() {
     onMutate: () => {
       setError(null);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data) {
+        setUser(data);
+      }
       navigate({ to: "/app/home" });
     },
     onError: (err: any) => {
