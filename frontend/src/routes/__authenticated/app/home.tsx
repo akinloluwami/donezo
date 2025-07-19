@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useUserStore } from "../../../lib/user-store";
+import { Plus } from "lucide-react";
 
 export const Route = createFileRoute("/__authenticated/app/home")({
   component: RouteComponent,
@@ -37,6 +38,13 @@ function RouteComponent() {
           It's {day}, {month} {date} - {dueTasks} tasks due today
         </span>
       </h2>
+
+      <div className="h-12 rounded-2xl bg-gray-200/50 w-full flex items-center justify-between px-5 hover:bg-gray-200/70 transition-colors cursor-pointer">
+        <p className="text-sm text-gray-500">Create a task</p>
+        <button className="bg-gray-300 size-5 flex items-center justify-center rounded-md">
+          <Plus size={14} className="text-gray-600" />
+        </button>
+      </div>
     </div>
   );
 }
