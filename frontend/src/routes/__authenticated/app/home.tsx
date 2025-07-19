@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useUserStore } from "../../../lib/user-store";
 import { Plus } from "lucide-react";
+import { useState } from "react";
+import CreateTaskModal from "../../../components/modals/create-task";
 
 export const Route = createFileRoute("/__authenticated/app/home")({
   component: RouteComponent,
@@ -30,6 +32,16 @@ function RouteComponent() {
   // TODO: Replace with real due tasks count from API
   const dueTasks = 9;
 
+  const [modalOpen, setModalOpen] = useState(false);
+
+  function openModal() {
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+  }
+
   return (
     <div>
       <h2 className="text-2xl mb-4 text-gray-800">
@@ -39,12 +51,25 @@ function RouteComponent() {
         </span>
       </h2>
 
-      <div className="h-12 rounded-2xl bg-gray-200/50 w-full flex items-center justify-between px-5 hover:bg-gray-200/70 transition-colors cursor-pointer">
+      <div
+        className="h-12 rounded-2xl bg-gray-200/50 w-full flex items-center justify-between px-5 hover:bg-gray-200/70 transition-colors cursor-pointer"
+        onClick={openModal}
+      >
         <p className="text-sm text-gray-500">Create a task</p>
-        <button className="bg-gray-300 size-5 flex items-center justify-center rounded-md">
+        <button
+          className="bg-gray-300 size-5 flex items-center justify-center rounded-md"
+          type="button"
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation();
+            openModal();
+          }}
+        >
           <Plus size={14} className="text-gray-600" />
         </button>
       </div>
+
+      <CreateTaskModal open={modalOpen} onClose={closeModal} />
     </div>
   );
 }
