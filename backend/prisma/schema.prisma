@@ -30,30 +30,37 @@ model Task {
   id          String     @id @default(uuid())
   title       String     @db.VarChar(255)
   description String?
-  status      Status     @default(PENDING)
+  status      Status     @default(TODO)
   user        User       @relation(fields: [userId], references: [id])
   userId      String
   extras      Extras?
-  collection  Collection @relation(fields: [collectionId], references: [id])
-  collectionId String
+  collection  Collection? @relation(fields: [collectionId], references: [id])
+  collectionId String?
   labels      Label[]    @relation("TaskLabels")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
 
 enum Status {
-  PENDING
+  TODO
   IN_PROGRESS
   DONE
 }
 
 model Extras {
   id        String   @id @default(uuid())
-  tags      String[]
+  labels    Label[]  @relation("ExtrasLabels")
   dueDate   DateTime?
-  priority  Int?
+  priority  PriorityLevel?
   task      Task     @relation(fields: [taskId], references: [id])
   taskId    String   @unique
+}
+
+enum PriorityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
 model Label {
@@ -63,11 +70,13 @@ model Label {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   tasks     Task[]   @relation("TaskLabels")
+  extras    Extras[] @relation("ExtrasLabels")
 }
 
 model Collection {
   id        String   @id @default(uuid())
   name      String
+  color     String?
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   tasks     Task[]
