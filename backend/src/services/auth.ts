@@ -24,6 +24,7 @@ export async function signup({
       id: user.id,
       email: user.email,
       name: user.name,
+      hasCompletedOnboarding: user.hasCompletedOnboarding,
     },
     token,
   };
@@ -41,7 +42,16 @@ export async function login({
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return { status: 401, error: "Invalid credentials" };
   const token = issueJWT(user.id);
-  return { status: 200, data: { token } };
+  return {
+    status: 200,
+    data: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      hasCompletedOnboarding: user.hasCompletedOnboarding,
+    },
+    token,
+  };
 }
 
 export async function getCurrentUser(userId: string) {
