@@ -7,11 +7,16 @@ const axiosInstance = axios.create({
 
 export const appClient = {
   auth: {
-    login: async (email: string, password: string) => {
-      const response = await axiosInstance.post("/auth/login", {
-        email,
-        password,
-      });
+    login: async (payload: { email: string; password: string }) => {
+      const response = await axiosInstance.post("/auth/login", payload);
+      return response.data;
+    },
+    signup: async (payload: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      const response = await axiosInstance.post("/auth/signup", payload);
       return response.data;
     },
   },
