@@ -23,6 +23,7 @@ model User {
   labels    Label[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  hasCompletedOnboarding Boolean @default(false)
 }
 
 model Task {
