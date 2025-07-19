@@ -23,10 +23,10 @@ router.post("/login", async (req: Request, res: Response) => {
   const result = await login(req.body);
   if (result.error)
     return res.status(result.status).json({ error: result.error });
-  if (!result.data || !result.data.token)
+  if (!result.data || !result.token)
     return res.status(500).json({ error: "Login failed" });
-  setAuthCookie(res, result.data.token);
-  return res.status(result.status).json({ success: true });
+  setAuthCookie(res, result.token);
+  return res.status(result.status).json(result.data);
 });
 
 export default router;
