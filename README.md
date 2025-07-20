@@ -1,6 +1,6 @@
 ## Donzeo
 
-A full-stack task management application with user authentication, collections, labels, and advanced task features. Built with React (Vite) frontend and Node.js/Express backend using Prisma ORM and PostgreSQL.
+A full-stack task management application with user authentication, collections, labels, and advanced task features. Built with React (Vite) + Tailwind frontend and Node.js/Express backend using Prisma ORM and PostgreSQL as the Database.
 
 ---
 
