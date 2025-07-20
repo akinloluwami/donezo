@@ -45,7 +45,7 @@ function RouteComponent() {
           className="flex items-center gap-x-2 text-sm bg-gray-300/40 p-2 rounded-md cursor-pointer hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus size={16} />
-          Create new collection
+         <span className="hidden lg:block"> Create new collection </span>
         </button>
       </div>
 

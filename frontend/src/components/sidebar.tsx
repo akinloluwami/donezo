@@ -1,8 +1,14 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
-import { Box, Scan, Target, LogOut } from "lucide-react";
+import { Box, Scan, Target, LogOut, X } from "lucide-react";
 import { useUserStore } from "../lib/user-store";
 
-const Sidebar = () => {
+const Sidebar = ({
+  open,
+  setOpen,
+}: {
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+}) => {
   const links = [
     {
       icon: Target,
@@ -33,7 +39,19 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-80  h-full py-2 px-4 flex items-center">
+    <div
+      className={`w-80 h-full py-2 px-4 lg:flex items-center lg:static z-50 fixed transition-transform duration-300
+  ${open ? "translate-x-0" : "-translate-x-full"}
+  lg:translate-x-0
+`}
+    >
+      <button
+        className="absolute top-4 right-6 z-50 lg:hidden p-2 rounded-full bg-white/40 shadow transition-colors cursor-pointer hover:bg-white/60"
+        onClick={() => setOpen?.(false)}
+      >
+        <X size={14} />
+      </button>
+
       <div className="bg-white h-[99%] w-full rounded-2xl px-6 py-10 shadow flex flex-col justify-between">
         <div className="flex flex-col space-y-3">
           {links.map((link) => (
@@ -43,6 +61,7 @@ const Sidebar = () => {
               className={`flex items-center space-x-2 text-gray-700 hover:text-gray-900 ${
                 isActive(link.href) ? "bg-accent/10" : "hover:bg-gray-100"
               } transition-colors px-2 py-3 rounded-2xl`}
+              onClick={() => setOpen?.(false)}
             >
               <link.icon size={16} />
               <span className="text-sm">{link.label}</span>

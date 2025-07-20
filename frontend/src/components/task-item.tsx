@@ -85,7 +85,9 @@ export default function TaskItem({ task }: TaskItemProps) {
           />
         </div>
       )}
-      <span className="text-gray-800 truncate text-sm">{task.title}</span>
+      <span className="text-gray-800 truncate text-sm lg:w-fit w-[50%]">
+        {task.title}
+      </span>
 
       <div className="flex items-center gap-2 ml-auto min-w-0">
         <span

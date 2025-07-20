@@ -5,6 +5,7 @@ import { appClient } from "../../lib/app-client";
 import { useCollectionsStore } from "../../lib/collections-store";
 import { toast } from "sonner";
 import { collectionsDB } from "../../lib/indexed-db";
+import { X } from "lucide-react";
 
 type CollectionModalProps = {
   open: boolean;
@@ -156,9 +157,15 @@ export default function CollectionModal({
 
   return (
     <Modal open={open} onClose={handleCancel}>
-      <h3 className="text-sm font-medium">
-        {isEditing ? "Edit Collection" : "New Collection"}
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium">
+          {isEditing ? "Edit Collection" : "New Collection"}
+        </h3>
+        <button onClick={handleCancel}>
+          <X size={20} />
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="mt-3">
         <input
           type="text"

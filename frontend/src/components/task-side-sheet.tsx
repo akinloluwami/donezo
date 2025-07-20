@@ -228,7 +228,7 @@ export default function TaskSideSheet({ task, onClose }: TaskSideSheetProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Task description"
-              className="w-full resize-none max-h-40"
+              className="w-full resize-none h-96"
             />
           </div>
           <button

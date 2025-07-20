@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Modal } from "../modal";
-import { CircleDashed, Ellipsis } from "lucide-react";
+import { CircleDashed, Ellipsis, X } from "lucide-react";
 import TaskOptionPopover from "./task-option-popover";
 import LabelPopover from "./label-popover";
 import CollectionPopover from "./collection-popover";
@@ -153,7 +153,12 @@ export default function CreateTaskModal({
 
   return (
     <Modal open={open} onClose={handleCancel}>
-      <h3 className="text-sm font-medium">New Task</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium">New Task</h3>
+        <button onClick={handleCancel}>
+          <X size={20} />
+        </button>
+      </div>
       <form onSubmit={handleSubmit} className="mt-3">
         <input
           type="text"
