@@ -7,30 +7,6 @@ type ExtrasInput = {
   priority?: number;
 };
 
-// Helper to map string priority to enum
-function mapPriority(priority?: string): any {
-  if (!priority) return undefined;
-  const map: Record<string, string> = {
-    low: "LOW",
-    medium: "MEDIUM",
-    high: "HIGH",
-    urgent: "URGENT",
-  };
-  const val = priority.toLowerCase();
-  return map[val] || undefined;
-}
-
-// Helper to map string status to enum
-function mapStatus(status?: string): any {
-  if (!status) return undefined;
-  const map: Record<string, string> = {
-    todo: "TODO",
-    in_progress: "IN_PROGRESS",
-    done: "DONE",
-  };
-  return map[status] || undefined;
-}
-
 export async function createTask({
   userId,
   collectionId,
@@ -50,13 +26,13 @@ export async function createTask({
   const data: any = {
     title,
     description,
-    status: mapStatus(status),
+    status,
     userId,
     extras: extras
       ? {
           create: {
             dueDate: extras.dueDate,
-            priority: mapPriority(extras.priority as any),
+            priority: extras.priority,
             labels:
               extras.labelIds && extras.labelIds.length > 0
                 ? {
@@ -67,12 +43,18 @@ export async function createTask({
         }
       : undefined,
   };
+
   if (collectionId) data.collectionId = collectionId;
+
   const task = await prisma.task.create({
     data,
-    include: { extras: { include: { labels: true } } },
   });
-  return { status: 201, data: task };
+
+  const fullTask = await prisma.task.findFirst({
+    where: { id: task.id, userId },
+    include: { extras: { include: { labels: true } }, labels: true },
+  });
+  return { status: 201, data: fullTask, error: undefined };
 }
 
 export async function getTasks({
@@ -100,15 +82,17 @@ export async function getTasks({
           },
         },
       },
-      include: { extras: true, labels: true },
+      include: { extras: { include: { labels: true } }, labels: true },
+      orderBy: { createdAt: "desc" },
     });
   } else {
     tasks = await prisma.task.findMany({
       where,
-      include: { extras: true, labels: true },
+      include: { extras: { include: { labels: true } }, labels: true },
+      orderBy: { createdAt: "desc" },
     });
   }
-  return { status: 200, data: tasks };
+  return { status: 200, data: tasks, error: undefined };
 }
 
 export async function getTaskById({
@@ -120,7 +104,7 @@ export async function getTaskById({
 }) {
   const task = await prisma.task.findFirst({
     where: { id, userId },
-    include: { extras: true, labels: true },
+    include: { extras: { include: { labels: true } }, labels: true },
   });
   if (!task) return { status: 404, error: "Task not found" };
   return { status: 200, data: task };
@@ -146,16 +130,14 @@ export async function updateTask({
   const data: any = {
     title,
     description,
-    status: mapStatus(status),
+    status,
   };
   if (collectionId !== undefined) data.collectionId = collectionId;
-  const task = await prisma.task.updateMany({
+  await prisma.task.updateMany({
     where: { id, userId },
     data,
   });
-  if (task.count === 0) return { status: 404, error: "Task not found" };
 
-  // Optionally update extras here if needed
   if (extras) {
     const existingExtras = await prisma.extras.findUnique({
       where: { taskId: id },
@@ -165,7 +147,7 @@ export async function updateTask({
         where: { taskId: id },
         data: {
           dueDate: extras.dueDate,
-          priority: mapPriority(extras.priority as any),
+          priority: extras.priority as any,
           labels: extras.labelIds
             ? {
                 set: extras.labelIds.map((labelId) => ({ id: labelId })),
@@ -175,9 +157,15 @@ export async function updateTask({
       });
     }
   }
+
+  const fullTask = await prisma.task.findFirst({
+    where: { id, userId },
+    include: { extras: { include: { labels: true } }, labels: true },
+  });
   return {
     status: 200,
-    data: { id, title, description, status, collectionId, extras },
+    data: fullTask,
+    error: undefined,
   };
 }
 
@@ -188,9 +176,31 @@ export async function deleteTask({
   userId: string;
   id: string;
 }) {
-  const task = await prisma.task.deleteMany({ where: { id, userId } });
-  if (task.count === 0) return { status: 404, error: "Task not found" };
-  return { status: 204, data: null };
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.extras.deleteMany({
+        where: { taskId: id },
+      });
+
+      const task = await tx.task.deleteMany({
+        where: { id, userId },
+      });
+
+      if (task.count === 0) {
+        return null;
+      }
+
+      return task;
+    });
+
+    if (!result) {
+      return { status: 404, error: "Task not found" };
+    }
+
+    return { status: 204, data: null, error: undefined };
+  } catch (error) {
+    return { status: 500, error: "Failed to delete task" };
+  }
 }
 
 export async function getTaskInsights({ userId }: { userId: string }) {
