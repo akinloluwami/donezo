@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "donezo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-router": "^1.128.3",
     "date-fns": "^4.1.0",
+    "idb": "^8.0.3",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.6",
     "react": "^19.1.0",
