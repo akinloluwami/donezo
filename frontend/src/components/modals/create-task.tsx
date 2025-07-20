@@ -16,11 +16,13 @@ import { toast } from "sonner";
 type CreateTaskModalProps = {
   open: boolean;
   onClose: () => void;
+  initialStatus?: string;
 };
 
 export default function CreateTaskModal({
   open,
   onClose,
+  initialStatus,
 }: CreateTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -58,6 +60,12 @@ export default function CreateTaskModal({
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [dueDatePopoverOpen]);
+
+  useEffect(() => {
+    if (open && initialStatus) {
+      setProgress(initialStatus as ProgressOption["value"]);
+    }
+  }, [open, initialStatus]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
