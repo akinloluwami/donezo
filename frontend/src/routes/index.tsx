@@ -42,7 +42,7 @@ function RouteComponent() {
 
       <div className="flex w-full max-w-4xl mx-auto lex-col mt-10 flex-col">
         <h1 className="lg:text-8xl text-5xl mt-14 font-bold text-gray-800">
-          A more humane
+          A more soulful
           <br />
           <span className="bg-gradient-to-r from-accent/70 to-gray-300 from-40% bg-clip-text text-transparent">
             task manager
