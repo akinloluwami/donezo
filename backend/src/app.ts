@@ -8,13 +8,12 @@ import collectionRoutes from "./routes/collection-routes";
 import requireAuth from "./middleware/require-auth";
 import taskRoutes from "./routes/task-routes";
 import labelRoutes from "./routes/label-routes";
-import helmet from "helmet";
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL!,
     credentials: true,
   })
 );

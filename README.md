@@ -33,7 +33,7 @@ npm run dev # Start frontend (Vite)
 
 ### 4. Environment Variables
 
-- **Backend:** See `backend/.env.example` for required variable -`DATABASE_URL` (for Postgres).
+- **Backend:** See `backend/.env.example` for required variables -`DATABASE_URL`, `JWT_SECRET`, `CLIENT_URL`.
 - **Frontend:** See `frontend/.env.example` for required variable `VITE_API_URL` (for backend base URL).
 
 ---
