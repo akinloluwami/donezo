@@ -32,7 +32,6 @@ export default function DueDatePopover({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  // Quick select handlers
   const handleQuickSelect = (option: "today" | "tomorrow" | "in2days") => {
     let date: Date;
     if (option === "today") {
@@ -46,13 +45,11 @@ export default function DueDatePopover({
     setOpen(false);
   };
 
-  // Calendar select handler
   const handleCalendarChange = (date: Date) => {
     setDueDate(date);
     setOpen(false);
   };
 
-  // Calendar tile class for selected date
   const tileClassName = ({ date }: { date: Date }) => {
     if (
       dueDate &&
