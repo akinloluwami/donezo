@@ -17,7 +17,10 @@ export async function createCollection({
 }
 
 export async function getCollections({ userId }: { userId: string }) {
-  const collections = await prisma.collection.findMany({ where: { userId } });
+  const collections = await prisma.collection.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
   return { status: 200, data: collections };
 }
 
