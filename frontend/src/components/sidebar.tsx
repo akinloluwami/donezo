@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
-import { Box, Scan, Settings, Target, LogOut } from "lucide-react";
+import { Box, Scan, Target, LogOut } from "lucide-react";
 import { useUserStore } from "../lib/user-store";
 
 const Sidebar = () => {
@@ -18,11 +18,6 @@ const Sidebar = () => {
       icon: Box,
       label: "Collections",
       href: "/app/collections",
-    },
-    {
-      icon: Settings,
-      label: "Settings",
-      href: "/app/settings",
     },
   ];
 
