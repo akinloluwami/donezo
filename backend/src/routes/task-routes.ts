@@ -39,10 +39,18 @@ router.get("/", async (req: Request, res: Response) => {
       parsedLabelIds = labelIds.split(",");
     }
   }
+  let parsedStatuses: Status[] | undefined = undefined;
+  if (status) {
+    if (Array.isArray(status)) {
+      parsedStatuses = status as Status[];
+    } else if (typeof status === "string") {
+      parsedStatuses = status.split(",") as Status[];
+    }
+  }
   const result = await getTasks({
     userId,
     collectionId: collectionId as string | undefined,
-    status: status as Status | undefined,
+    status: parsedStatuses,
     labelIds: parsedLabelIds,
   });
   return res.status(result.status).json(result.data);
