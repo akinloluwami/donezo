@@ -123,12 +123,11 @@ function RouteComponent() {
                 </span>
               </div>
               <button
-                className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded transition-colors text-xs"
+                className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition-colors text-xs p-1"
                 type="button"
                 onClick={() => handleOpenModal(status)}
               >
                 <Plus size={14} />
-                <span>New</span>
               </button>
             </div>
             <div className="space-y-2.5">
