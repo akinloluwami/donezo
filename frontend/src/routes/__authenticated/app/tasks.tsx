@@ -3,7 +3,7 @@ import { useTasksStore } from "../../../lib/tasks-store";
 import TaskItem from "../../../components/task-item";
 import { CircleDotDashed, Layers2, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateTaskModal from "../../../components/modals/create-task";
 
 const TABS = [
@@ -62,9 +62,18 @@ const TabButton = ({
 
 function RouteComponent() {
   const tasks = useTasksStore((s) => s.tasks);
+  const loadTasks = useTasksStore((s) => s.loadTasks);
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const tab: TabKey = search.tab === "active" ? "active" : "all";
+
+  useEffect(() => {
+    if (tab === "active") {
+      loadTasks({ status: "TODO,IN_PROGRESS" });
+    } else {
+      loadTasks();
+    }
+  }, [tab, loadTasks]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalStatus, setModalStatus] = useState<StatusKey | null>(null);
