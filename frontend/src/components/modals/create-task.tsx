@@ -5,15 +5,13 @@ import TaskOptionPopover from "./task-option-popover";
 import LabelPopover from "./label-popover";
 import CollectionPopover from "./collection-popover";
 import DueDatePopover from "./due-date-popover";
-import {
-  PROGRESS_OPTIONS,
-  PRIORITY_OPTIONS,
-  COLLECTIONS,
-} from "./constants/tasks";
+import { PROGRESS_OPTIONS, PRIORITY_OPTIONS } from "./constants/tasks";
 import type { ProgressOption, PriorityOption } from "./types/tasks";
 import { useMutation } from "@tanstack/react-query";
 import { appClient } from "../../lib/app-client";
 import { useTasksStore } from "../../lib/tasks-store";
+import { useCollectionsStore } from "../../lib/collections-store";
+import { toast } from "sonner";
 
 type CreateTaskModalProps = {
   open: boolean;
@@ -26,7 +24,7 @@ export default function CreateTaskModal({
 }: CreateTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [progress, setProgress] = useState<ProgressOption["value"]>("todo");
+  const [progress, setProgress] = useState<ProgressOption["value"]>("TODO");
   const [priority, setPriority] = useState<PriorityOption["value"]>("");
   const [labels, setLabels] = useState<string[]>([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState<
@@ -38,13 +36,12 @@ export default function CreateTaskModal({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const addTask = useTasksStore((s) => s.addTask);
+  const collections = useCollectionsStore((s) => s.collections);
+
   const createTaskMutation = useMutation({
     mutationFn: appClient.tasks.createTask,
-    onSuccess: (task) => {
-      addTask(task);
-      setTitle("");
-      setDescription("");
-      onClose();
+    onError: () => {
+      toast.error("Failed to create task. Please try again.");
     },
   });
 
@@ -76,7 +73,63 @@ export default function CreateTaskModal({
         dueDate: dueDate ? dueDate.toISOString() : undefined,
       },
     };
-    createTaskMutation.mutate(payload);
+
+    const optimisticTask = {
+      id: `temp-${Date.now()}`,
+      title,
+      description,
+      status: (progress ? progress.toUpperCase() : "TODO") as
+        | "TODO"
+        | "IN_PROGRESS"
+        | "DONE",
+      collectionId: selectedCollectionId || undefined,
+      extras: {
+        id: `temp-extras-${Date.now()}`,
+        labels: labels.map((id) => ({ id, name: id })),
+        dueDate: dueDate ? dueDate.toISOString() : undefined,
+        priority: priority
+          ? (priority.toUpperCase() as "LOW" | "MEDIUM" | "HIGH" | "URGENT")
+          : undefined,
+        taskId: `temp-${Date.now()}`,
+      },
+      labels: labels.map((id) => ({ id, name: id })),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    addTask(optimisticTask);
+
+    setTitle("");
+    setDescription("");
+    onClose();
+
+    createTaskMutation.mutate(payload, {
+      onSuccess: (realTask) => {
+        const tasks = useTasksStore.getState().tasks;
+        const taskIndex = tasks.findIndex((t) => t.id === optimisticTask.id);
+        if (taskIndex !== -1) {
+          const updatedTasks = [...tasks];
+          const existingTask = updatedTasks[taskIndex];
+
+          Object.assign(existingTask, {
+            title: realTask.title,
+            description: realTask.description,
+            status: realTask.status,
+            collectionId: realTask.collectionId,
+            extras: realTask.extras,
+            labels: realTask.labels,
+            createdAt: realTask.createdAt,
+            updatedAt: realTask.updatedAt,
+          });
+          useTasksStore.getState().setTasks(updatedTasks);
+        }
+      },
+      onError: () => {
+        const tasks = useTasksStore.getState().tasks;
+        const updatedTasks = tasks.filter((t) => t.id !== optimisticTask.id);
+        useTasksStore.getState().setTasks(updatedTasks);
+      },
+    });
   }
 
   function handleCancel() {
@@ -94,14 +147,6 @@ export default function CreateTaskModal({
     }
   }
 
-  // Optionally, auto-resize on mount or when description changes
-  // useEffect(() => {
-  //   if (textareaRef.current) {
-  //     textareaRef.current.style.height = 'auto';
-  //     textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-  //   }
-  // }, [description]);
-
   return (
     <Modal open={open} onClose={handleCancel}>
       <h3 className="text-sm font-medium">New Task</h3>
@@ -112,6 +157,7 @@ export default function CreateTaskModal({
           className="text-lg font-medium w-full focus:outline-none focus:ring-0"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          autoFocus
         />
         <textarea
           ref={textareaRef}
@@ -139,7 +185,7 @@ export default function CreateTaskModal({
             onChange={(opt) => setPriority(opt.value)}
           />
           <CollectionPopover
-            collections={COLLECTIONS}
+            collections={collections}
             selectedCollectionId={selectedCollectionId}
             setSelectedCollectionId={setSelectedCollectionId}
           />
