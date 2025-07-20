@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Box, Check } from "lucide-react";
-import type { Collection } from "./types/tasks";
+import type { Collection } from "../../lib/collections-store";
 
 export default function CollectionPopover({
   collections,
@@ -55,29 +55,35 @@ export default function CollectionPopover({
             transition={{ duration: 0.18, ease: "easeOut" }}
             className={`absolute z-10 mt-1 min-w-[180px] bg-white border border-gray-200 rounded shadow-lg ${place === "left" ? "left-0" : "right-0"}`}
           >
-            {collections.map((col) => (
-              <button
-                key={col.id}
-                type="button"
-                className={`flex items-center w-full gap-x-2 px-3 py-1.5 text-sm hover:bg-gray-100 relative ${
-                  selectedCollectionId === col.id ? "bg-blue-50" : ""
-                }`}
-                onClick={() => {
-                  setSelectedCollectionId(
-                    col.id === selectedCollectionId ? null : col.id
-                  );
-                  setOpen(false);
-                }}
-              >
-                <Box size={16} color={col.color} />
-                {col.name}
-                {selectedCollectionId === col.id && (
-                  <span className="ml-auto flex items-center">
-                    <Check size={16} className="text-blue-500" />
-                  </span>
-                )}
-              </button>
-            ))}
+            {collections.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-gray-500">
+                No collections
+              </div>
+            ) : (
+              collections.map((col) => (
+                <button
+                  key={col.id}
+                  type="button"
+                  className={`flex items-center w-full gap-x-2 px-3 py-1.5 text-sm hover:bg-gray-100 relative ${
+                    selectedCollectionId === col.id ? "bg-blue-50" : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedCollectionId(
+                      col.id === selectedCollectionId ? null : col.id
+                    );
+                    setOpen(false);
+                  }}
+                >
+                  <Box size={16} color={col.color} />
+                  {col.name}
+                  {selectedCollectionId === col.id && (
+                    <span className="ml-auto flex items-center">
+                      <Check size={16} className="text-blue-500" />
+                    </span>
+                  )}
+                </button>
+              ))
+            )}
           </motion.div>
         )}
       </AnimatePresence>
