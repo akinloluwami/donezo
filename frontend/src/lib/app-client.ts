@@ -87,5 +87,9 @@ export const appClient = {
       const response = await axiosInstance.delete(`/tasks/${id}`);
       return response.data;
     },
+    getInsights: async () => {
+      const response = await axiosInstance.get("/tasks/insights");
+      return response.data;
+    },
   },
 };

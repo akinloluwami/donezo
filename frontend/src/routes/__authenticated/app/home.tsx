@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useUserStore } from "../../../lib/user-store";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateTaskModal from "../../../components/modals/create-task";
 import { useTasksStore } from "../../../lib/tasks-store";
 import TaskItem from "../../../components/task-item";
 import { motion, AnimatePresence } from "motion/react";
+import { appClient } from "../../../lib/app-client";
+import { useTypingEffect } from "../../../components/use-typing-effect";
 
 export const Route = createFileRoute("/__authenticated/app/home")({
   component: RouteComponent,
@@ -32,8 +34,37 @@ function RouteComponent() {
     greeting = "Good night";
   }
 
-  // TODO: Replace with real due tasks count from API
-  const dueTasks = 9;
+  const [dueTasks, setDueTasks] = useState<number | null>(null);
+  const [loadingInsights, setLoadingInsights] = useState(true);
+
+  const dueTasksText =
+    dueTasks !== null && !loadingInsights ? ` - ${dueTasks} due tasks.` : "";
+  const animatedDueTasksText = useTypingEffect(dueTasksText, { delay: 30 });
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchInsights() {
+      setLoadingInsights(true);
+      try {
+        const insights = await appClient.tasks.getInsights();
+
+        const byStatus = insights?.byStatus || [];
+
+        const due = byStatus
+          .filter((s: any) => s.status !== "DONE")
+          .reduce((acc: number, s: any) => acc + (s.count || 0), 0);
+        if (mounted) setDueTasks(due);
+      } catch (e) {
+        if (mounted) setDueTasks(null);
+      } finally {
+        if (mounted) setLoadingInsights(false);
+      }
+    }
+    fetchInsights();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -52,7 +83,10 @@ function RouteComponent() {
       <h2 className="text-2xl mb-4 text-gray-800">
         {greeting} {name}, <br />
         <span className="text-gray-500">
-          It's {day}, {month} {date} - {dueTasks} tasks due
+          It's {day}, {month} {date}
+          {dueTasks !== null && !loadingInsights && (
+            <span>{animatedDueTasksText}</span>
+          )}
         </span>
       </h2>
 
