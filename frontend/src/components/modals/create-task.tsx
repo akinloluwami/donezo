@@ -12,6 +12,7 @@ import { appClient } from "../../lib/app-client";
 import { useTasksStore } from "../../lib/tasks-store";
 import { useCollectionsStore } from "../../lib/collections-store";
 import { toast } from "sonner";
+import { tasksDB } from "../../lib/indexed-db";
 
 type CreateTaskModalProps = {
   open: boolean;
@@ -112,23 +113,17 @@ export default function CreateTaskModal({
     onClose();
 
     createTaskMutation.mutate(payload, {
-      onSuccess: (realTask) => {
+      onSuccess: async (realTask) => {
         const tasks = useTasksStore.getState().tasks;
         const taskIndex = tasks.findIndex((t) => t.id === optimisticTask.id);
         if (taskIndex !== -1) {
           const updatedTasks = [...tasks];
-          const existingTask = updatedTasks[taskIndex];
 
-          Object.assign(existingTask, {
-            title: realTask.title,
-            description: realTask.description,
-            status: realTask.status,
-            collectionId: realTask.collectionId,
-            extras: realTask.extras,
-            labels: realTask.labels,
-            createdAt: realTask.createdAt,
-            updatedAt: realTask.updatedAt,
-          });
+          updatedTasks.splice(taskIndex, 1);
+          await tasksDB.delete(optimisticTask.id);
+
+          updatedTasks.unshift(realTask);
+          await tasksDB.add(realTask);
           useTasksStore.getState().setTasks(updatedTasks);
         }
       },
@@ -136,6 +131,7 @@ export default function CreateTaskModal({
         const tasks = useTasksStore.getState().tasks;
         const updatedTasks = tasks.filter((t) => t.id !== optimisticTask.id);
         useTasksStore.getState().setTasks(updatedTasks);
+        tasksDB.delete(optimisticTask.id);
       },
     });
   }
