@@ -49,7 +49,7 @@ export default function LabelPopover({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  let buttonText = null;
+  let buttonText: string | null = null;
   let buttonDotColor: string | null = null;
 
   if (selected.length === 1) {
