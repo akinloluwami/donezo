@@ -87,6 +87,6 @@ This project uses **Prisma** with a **PostgreSQL** database. Main models:
 
 ## 🌐 Deployed App
 
-[Live Demo](https://donezo-chi.vercel.app)
+[Live Demo](https://donezo.akinkunmi.dev)
 
 ---

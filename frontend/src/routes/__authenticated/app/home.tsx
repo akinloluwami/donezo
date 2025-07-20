@@ -38,7 +38,9 @@ function RouteComponent() {
   const [loadingInsights, setLoadingInsights] = useState(true);
 
   const dueTasksText =
-    dueTasks !== null && !loadingInsights ? ` - ${dueTasks} due tasks.` : "";
+    dueTasks !== null && !loadingInsights
+      ? ` - ${dueTasks} due task${dueTasks === 1 ? "" : "s"}.`
+      : "";
   const animatedDueTasksText = useTypingEffect(dueTasksText, { delay: 30 });
 
   const tasks = useTasksStore((s) => s.tasks);
