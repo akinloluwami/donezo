@@ -41,15 +41,15 @@ function RouteComponent() {
     dueTasks !== null && !loadingInsights ? ` - ${dueTasks} due tasks.` : "";
   const animatedDueTasksText = useTypingEffect(dueTasksText, { delay: 30 });
 
+  const tasks = useTasksStore((s) => s.tasks);
+
   useEffect(() => {
     let mounted = true;
     async function fetchInsights() {
       setLoadingInsights(true);
       try {
         const insights = await appClient.tasks.getInsights();
-
         const byStatus = insights?.byStatus || [];
-
         const due = byStatus
           .filter((s: any) => s.status !== "DONE")
           .reduce((acc: number, s: any) => acc + (s.count || 0), 0);
@@ -64,7 +64,7 @@ function RouteComponent() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [tasks]);
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -75,8 +75,6 @@ function RouteComponent() {
   function closeModal() {
     setModalOpen(false);
   }
-
-  const tasks = useTasksStore((s) => s.tasks);
 
   return (
     <div>
