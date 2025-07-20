@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@floating-ui/react-dom-interactions": "^0.13.3",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-router": "^1.128.3",
     "date-fns": "^4.1.0",
