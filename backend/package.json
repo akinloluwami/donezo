@@ -18,7 +18,8 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "prisma": "^6.12.0"
