@@ -11,8 +11,8 @@ const router = Router();
 
 router.post("/", async (req: Request, res: Response) => {
   const userId = (req as any).userId;
-  const { name } = req.body;
-  const result = await createCollection({ userId, name });
+  const { name, color } = req.body;
+  const result = await createCollection({ userId, name, color });
   if (result.error)
     return res.status(result.status).json({ error: result.error });
   return res.status(result.status).json(result.data);
@@ -36,8 +36,8 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.put("/:id", async (req: Request, res: Response) => {
   const userId = (req as any).userId;
   const { id } = req.params;
-  const { name } = req.body;
-  const result = await updateCollection({ userId, id, name });
+  const { name, color } = req.body;
+  const result = await updateCollection({ userId, id, name, color });
   if (result.error)
     return res.status(result.status).json({ error: result.error });
   return res.status(result.status).json(result.data);
