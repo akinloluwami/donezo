@@ -65,9 +65,9 @@ This project uses **Prisma** with a **PostgreSQL** database. Main models:
 ## 📝 What I'd Build Next If I Had More Time
 
 - **Onboarding**: Guided setup for new users.
+- **Team/Collaboration**: Shared collections, assign tasks to other users.
 - **User Profiles**: Customizable user profiles with avatars.
 - **Notifications**: Reminders for due dates and overdue tasks.
-- **Team/Collaboration**: Shared collections, assign tasks to other users.
 - **Recurring Tasks**: Support for tasks that repeat on a schedule.
 - **OAuth**: Google/GitHub login.
 - **Task History**: Track changes to tasks over time.
@@ -83,6 +83,14 @@ This project uses **Prisma** with a **PostgreSQL** database. Main models:
 - **API Documentation**: Hoppscotch or Postman docs for backend API endpoints.
 
 ---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React (Vite), TypeScript, Tailwind CSS
+- **Backend**: Node.js, Express, TypeScript, Prisma
+- **Database**: PostgreSQL
+- **Auth**: JWT
+- **ORM**: Prisma
 
 ## 🌐 Deployed App
 
