@@ -69,7 +69,6 @@ This project uses **Prisma** with a **PostgreSQL** database. Main models:
 - **Notifications**: Reminders for due dates and overdue tasks.
 - **Team/Collaboration**: Shared collections, assign tasks to other users.
 - **Recurring Tasks**: Support for tasks that repeat on a schedule.
-- **Mobile Responsiveness**: Improved mobile UI/UX.
 - **OAuth**: Google/GitHub login.
 - **Task History**: Track changes to tasks over time.
 - **File Attachments**: Upload files to tasks.
