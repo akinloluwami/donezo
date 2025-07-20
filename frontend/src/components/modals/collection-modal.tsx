@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { appClient } from "../../lib/app-client";
 import { useCollectionsStore } from "../../lib/collections-store";
 import { toast } from "sonner";
+import { collectionsDB } from "../../lib/indexed-db";
 
 type CollectionModalProps = {
   open: boolean;
@@ -35,7 +36,6 @@ export default function CollectionModal({
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const isEditing = !!collection;
 
-  const addCollection = useCollectionsStore((s) => s.addCollection);
   const updateCollection = useCollectionsStore((s) => s.updateCollection);
 
   const createMutation = useMutation({
@@ -105,21 +105,31 @@ export default function CollectionModal({
         updatedAt: new Date().toISOString(),
       };
 
-      addCollection(optimisticCollection);
-
       setName("");
       setSelectedColor(COLORS[0]);
       onClose();
 
+      useCollectionsStore
+        .getState()
+        .setCollections([
+          optimisticCollection,
+          ...useCollectionsStore.getState().collections,
+        ]);
+
       createMutation.mutate(payload, {
-        onSuccess: (realCollection) => {
+        onSuccess: async (realCollection) => {
           const collections = useCollectionsStore.getState().collections;
           const collectionIndex = collections.findIndex(
             (c) => c.id === optimisticCollection.id
           );
           if (collectionIndex !== -1) {
             const updatedCollections = [...collections];
-            updatedCollections[collectionIndex] = realCollection;
+
+            updatedCollections.splice(collectionIndex, 1);
+            await collectionsDB.delete(optimisticCollection.id);
+
+            updatedCollections.unshift(realCollection);
+            await collectionsDB.add(realCollection);
             useCollectionsStore.getState().setCollections(updatedCollections);
           }
           toast.success("Collection created successfully");
@@ -130,6 +140,7 @@ export default function CollectionModal({
             (c) => c.id !== optimisticCollection.id
           );
           useCollectionsStore.getState().setCollections(updatedCollections);
+          collectionsDB.delete(optimisticCollection.id);
         },
       });
     }
