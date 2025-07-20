@@ -15,7 +15,7 @@ export function useTypingEffect(
 
   useEffect(() => {
     setDisplay("");
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     let cancelled = false;
     function typeChar(idx: number) {
       if (cancelled) return;
