@@ -52,7 +52,7 @@ function RouteComponent() {
       <h2 className="text-2xl mb-4 text-gray-800">
         {greeting} {name}, <br />
         <span className="text-gray-500">
-          It's {day}, {month} {date} - {dueTasks} tasks due today
+          It's {day}, {month} {date} - {dueTasks} tasks due
         </span>
       </h2>
 
