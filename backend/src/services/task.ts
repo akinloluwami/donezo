@@ -65,12 +65,18 @@ export async function getTasks({
 }: {
   userId: string;
   collectionId?: string;
-  status?: Status;
+  status?: Status | Status[];
   labelIds?: string[];
 }) {
   const where: any = { userId };
   if (collectionId) where.collectionId = collectionId;
-  if (status) where.status = status;
+  if (status) {
+    if (Array.isArray(status)) {
+      where.status = { in: status };
+    } else {
+      where.status = status;
+    }
+  }
   let tasks;
   if (labelIds && labelIds.length > 0) {
     tasks = await prisma.task.findMany({
