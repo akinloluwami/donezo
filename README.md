@@ -64,6 +64,8 @@ This project uses **Prisma** with a **PostgreSQL** database. Main models:
 
 ## 📝 What I'd Build Next If I Had More Time
 
+- **Onboarding**: Guided setup for new users.
+- **User Profiles**: Customizable user profiles with avatars.
 - **Notifications**: Reminders for due dates and overdue tasks.
 - **Team/Collaboration**: Shared collections, assign tasks to other users.
 - **Recurring Tasks**: Support for tasks that repeat on a schedule.
