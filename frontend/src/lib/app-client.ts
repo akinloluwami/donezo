@@ -19,6 +19,14 @@ export const appClient = {
       const response = await axiosInstance.post("/auth/signup", payload);
       return response.data;
     },
+    logout: async () => {
+      const response = await axiosInstance.post("/auth/logout");
+      return response.data;
+    },
+    getCurrentUser: async () => {
+      const response = await axiosInstance.get("/auth/me");
+      return response.data;
+    },
   },
   labels: {
     createLabel: async (payload: { name: string; color?: string }) => {
