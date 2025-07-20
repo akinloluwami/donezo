@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { appClient } from "./app-client";
+import { collectionsDB } from "./indexed-db";
 
 export type Collection = {
   id: string;
@@ -19,23 +20,52 @@ type CollectionsStore = {
   loadCollections: () => Promise<void>;
 };
 
-export const useCollectionsStore = create<CollectionsStore>((set) => ({
+export const useCollectionsStore = create<CollectionsStore>((set, get) => ({
   collections: [],
-  setCollections: (collections) => set({ collections }),
-  addCollection: (collection) =>
-    set((state) => ({ collections: [...state.collections, collection] })),
-  updateCollection: (id, data) =>
+  setCollections: (collections) => {
+    set({ collections });
+    collections.forEach((collection) => collectionsDB.add(collection));
+  },
+  addCollection: (collection) => {
+    set((state) => ({ collections: [...state.collections, collection] }));
+    collectionsDB.add(collection);
+  },
+  updateCollection: (id, data) => {
     set((state) => ({
       collections: state.collections.map((c) =>
         c.id === id ? { ...c, ...data } : c
       ),
-    })),
-  removeCollection: (id) =>
+    }));
+    const updatedCollection = get().collections.find((c) => c.id === id);
+    if (updatedCollection) collectionsDB.add(updatedCollection);
+  },
+  removeCollection: (id) => {
     set((state) => ({
       collections: state.collections.filter((c) => c.id !== id),
-    })),
+    }));
+    collectionsDB.delete(id);
+  },
   loadCollections: async () => {
-    const collections = await appClient.collections.getCollections();
-    set({ collections });
+    const localCollectionsRaw = await collectionsDB.getAll();
+    let localCollections: Collection[] = (localCollectionsRaw || []).filter(
+      (c): c is Collection => !!c && typeof c.id === "string"
+    );
+
+    localCollections = localCollections.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+    if (localCollections.length > 0) {
+      set({ collections: localCollections });
+    }
+
+    try {
+      const collections = await appClient.collections.getCollections();
+      set({ collections });
+      for (const collection of collections) {
+        await collectionsDB.add(collection);
+      }
+    } catch (err) {}
   },
 }));
