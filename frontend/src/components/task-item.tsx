@@ -4,6 +4,10 @@ import TaskOptionPopover from "./modals/task-option-popover";
 import { useTasksStore } from "../lib/tasks-store";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useCollectionsStore } from "../lib/collections-store";
+import { format } from "date-fns";
+import { Box } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 
 interface TaskItemProps {
   task: Task;
@@ -21,6 +25,13 @@ export default function TaskItem({ task }: TaskItemProps) {
   );
   const setSelectedTaskId = useTasksStore((s) => s.setSelectedTaskId);
   const [isUpdating, setIsUpdating] = useState(false);
+  const collections = useCollectionsStore((s) => s.collections);
+  const collection = task.collectionId
+    ? collections.find((c) => c.id === task.collectionId)
+    : undefined;
+  const dueDate = task.extras?.dueDate
+    ? new Date(task.extras.dueDate)
+    : undefined;
 
   function handlePopoverClick(e: React.MouseEvent) {
     e.stopPropagation();
@@ -75,13 +86,41 @@ export default function TaskItem({ task }: TaskItemProps) {
         </div>
       )}
       <span className="text-gray-800 truncate text-sm">{task.title}</span>
-      {isUpdating && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="ml-auto w-2 h-2 bg-blue-500 rounded-full animate-pulse"
-        />
-      )}
+
+      <div className="flex items-center gap-2 ml-auto min-w-0">
+        <span
+          className="flex items-center justify-center"
+          style={{ width: 10, minWidth: 10 }}
+        >
+          <AnimatePresence>
+            {isUpdating && (
+              <motion.div
+                key="updating-dot"
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                transition={{ duration: 0.18 }}
+                className="w-2 h-2 bg-blue-500 rounded-full"
+              />
+            )}
+          </AnimatePresence>
+        </span>
+        {dueDate && (
+          <span className="text-xs text-gray-500 flex items-center">
+            {format(dueDate, "d. MMM")}
+          </span>
+        )}
+        {collection && (
+          <span className="flex items-center text-xs text-gray-500">
+            <Box
+              size={14}
+              color={collection.color || "#6366f1"}
+              className="mr-1"
+            />
+            {collection.name}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
