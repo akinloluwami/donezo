@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { appClient } from "./app-client";
 
 export type User = {
   id: string;
@@ -9,20 +10,15 @@ export type User = {
 
 interface UserStore {
   user: User | null;
+  loading: boolean;
   setUser: (user: User) => void;
   clearUser: () => void;
-}
-
-function getInitialUser(): User | null {
-  try {
-    const stored = localStorage.getItem("user");
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return null;
+  fetchUser: () => Promise<void>;
 }
 
 export const useUserStore = create<UserStore>((set) => ({
-  user: getInitialUser(),
+  user: null,
+  loading: true,
   setUser: (user) => {
     set({ user });
     localStorage.setItem("user", JSON.stringify(user));
@@ -30,5 +26,27 @@ export const useUserStore = create<UserStore>((set) => ({
   clearUser: () => {
     set({ user: null });
     localStorage.removeItem("user");
+    appClient.auth.logout();
+  },
+  fetchUser: async () => {
+    set({ loading: true });
+
+    let localUser: User | null = null;
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) localUser = JSON.parse(stored);
+    } catch {}
+    set({ user: localUser });
+
+    try {
+      const backendUser = await appClient.auth.getCurrentUser();
+      if (backendUser) {
+        set({ user: backendUser });
+        localStorage.setItem("user", JSON.stringify(backendUser));
+      }
+    } catch {}
+    set(() => ({ loading: false }));
   },
 }));
+
+useUserStore.getState().fetchUser();
