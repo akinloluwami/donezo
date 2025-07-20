@@ -1,4 +1,4 @@
-import "../src/load-env";
+import "./load-env";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth-routes";
