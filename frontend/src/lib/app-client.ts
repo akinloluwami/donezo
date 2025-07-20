@@ -41,6 +41,27 @@ export const appClient = {
       return response.data;
     },
   },
+  collections: {
+    createCollection: async (payload: { name: string; color?: string }) => {
+      const response = await axiosInstance.post("/collections", payload);
+      return response.data;
+    },
+    getCollections: async () => {
+      const response = await axiosInstance.get("/collections");
+      return response.data;
+    },
+    updateCollection: async (
+      id: string,
+      payload: { name?: string; color?: string }
+    ) => {
+      const response = await axiosInstance.put(`/collections/${id}`, payload);
+      return response.data;
+    },
+    deleteCollection: async (id: string) => {
+      const response = await axiosInstance.delete(`/collections/${id}`);
+      return response.data;
+    },
+  },
   tasks: {
     createTask: async (payload: any) => {
       const response = await axiosInstance.post("/tasks", payload);
