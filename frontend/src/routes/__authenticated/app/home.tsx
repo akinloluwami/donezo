@@ -5,6 +5,7 @@ import { useState } from "react";
 import CreateTaskModal from "../../../components/modals/create-task";
 import { useTasksStore } from "../../../lib/tasks-store";
 import TaskItem from "../../../components/task-item";
+import { motion, AnimatePresence } from "motion/react";
 
 export const Route = createFileRoute("/__authenticated/app/home")({
   component: RouteComponent,
@@ -76,9 +77,21 @@ function RouteComponent() {
       <CreateTaskModal open={modalOpen} onClose={closeModal} />
 
       <div className="mt-5 space-y-2.5">
-        {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {tasks
+            .filter((task) => task.status !== "DONE")
+            .map((task) => (
+              <motion.div
+                key={task.id}
+                layout
+                initial={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 100 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <TaskItem task={task} />
+              </motion.div>
+            ))}
+        </AnimatePresence>
       </div>
     </div>
   );
