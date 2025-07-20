@@ -63,6 +63,11 @@ export async function deleteCollection({
   userId: string;
   id: string;
 }) {
+  await prisma.task.updateMany({
+    where: { collectionId: id, userId },
+    data: { collectionId: null },
+  });
+
   const collection = await prisma.collection.deleteMany({
     where: { id, userId },
   });
