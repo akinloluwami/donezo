@@ -22,8 +22,9 @@ router.post("/", async (req: Request, res: Response) => {
     status,
     extras,
   });
-  if (result.error)
+  if (result.error) {
     return res.status(result.status).json({ error: result.error });
+  }
   return res.status(result.status).json(result.data);
 });
 
@@ -65,17 +66,20 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.put("/:id", async (req: Request, res: Response) => {
   const userId = (req as any).userId;
   const { id } = req.params;
-  const { title, description, status, extras } = req.body;
+  const { title, description, status, collectionId, extras } = req.body;
   const result = await updateTask({
     userId,
     id,
     title,
     description,
     status,
+    collectionId,
     extras,
   });
-  if (result.error)
+
+  if (result.error) {
     return res.status(result.status).json({ error: result.error });
+  }
   return res.status(result.status).json(result.data);
 });
 
@@ -83,8 +87,9 @@ router.delete("/:id", async (req: Request, res: Response) => {
   const userId = (req as any).userId;
   const { id } = req.params;
   const result = await deleteTask({ userId, id });
-  if (result.error)
+  if (result.error) {
     return res.status(result.status).json({ error: result.error });
+  }
   return res.status(result.status).send();
 });
 
