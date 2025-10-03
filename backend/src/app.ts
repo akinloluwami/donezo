@@ -9,13 +9,15 @@ import requireAuth from "./middleware/require-auth";
 import taskRoutes from "./routes/task-routes";
 import labelRoutes from "./routes/label-routes";
 
+//nothing
+
 const app = express();
 
 app.use(
   cors({
     origin: process.env.CLIENT_URL!,
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
